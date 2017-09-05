@@ -18,8 +18,8 @@
 package de.thm.arsnova.controller;
 
 import de.thm.arsnova.entities.ServiceDescription;
+import de.thm.arsnova.entities.UserAuthentication;
 import de.thm.arsnova.entities.migration.v2.Session;
-import de.thm.arsnova.entities.User;
 import de.thm.arsnova.exceptions.UnauthorizedException;
 import de.thm.arsnova.services.UserService;
 import de.thm.arsnova.services.UserSessionService;
@@ -304,7 +304,7 @@ public class LoginController extends AbstractController {
 
 	@RequestMapping(value = { "/auth/", "/whoami" }, method = RequestMethod.GET)
 	@ResponseBody
-	public User whoami() {
+	public UserAuthentication whoami() {
 		userSessionService.setUser(userService.getCurrentUser());
 		return userService.getCurrentUser();
 	}
@@ -431,8 +431,8 @@ public class LoginController extends AbstractController {
 
 	@RequestMapping(value = { "/test/me" }, method = RequestMethod.GET)
 	@ResponseBody
-	public User me() {
-		final User me = userSessionService.getUser();
+	public UserAuthentication me() {
+		final UserAuthentication me = userSessionService.getUser();
 		if (me == null) {
 			throw new UnauthorizedException();
 		}

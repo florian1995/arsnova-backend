@@ -32,7 +32,7 @@ import java.io.Serializable;
 /**
  * Represents a user.
  */
-public class User implements Serializable {
+public class UserAuthentication implements Serializable {
 	public static final String GOOGLE = "google";
 	public static final String TWITTER = "twitter";
 	public static final String FACEBOOK = "facebook";
@@ -48,32 +48,32 @@ public class User implements Serializable {
 	private UserSessionService.Role role;
 	private boolean isAdmin;
 
-	public User(Google2Profile profile) {
+	public UserAuthentication(Google2Profile profile) {
 		setUsername(profile.getEmail());
-		setType(User.GOOGLE);
+		setType(UserAuthentication.GOOGLE);
 	}
 
-	public User(TwitterProfile profile) {
+	public UserAuthentication(TwitterProfile profile) {
 		setUsername(profile.getUsername());
-		setType(User.TWITTER);
+		setType(UserAuthentication.TWITTER);
 	}
 
-	public User(FacebookProfile profile) {
+	public UserAuthentication(FacebookProfile profile) {
 		setUsername(profile.getProfileUrl().toString());
-		setType(User.FACEBOOK);
+		setType(UserAuthentication.FACEBOOK);
 	}
 
-	public User(AttributePrincipal principal) {
+	public UserAuthentication(AttributePrincipal principal) {
 		setUsername(principal.getName());
-		setType(User.THM);
+		setType(UserAuthentication.THM);
 	}
 
-	public User(AnonymousAuthenticationToken token) {
-		setUsername(User.ANONYMOUS);
-		setType(User.ANONYMOUS);
+	public UserAuthentication(AnonymousAuthenticationToken token) {
+		setUsername(UserAuthentication.ANONYMOUS);
+		setType(UserAuthentication.ANONYMOUS);
 	}
 
-	public User(UsernamePasswordAuthenticationToken token) {
+	public UserAuthentication(UsernamePasswordAuthenticationToken token) {
 		setUsername(token.getName());
 		setType(LDAP);
 	}
@@ -138,7 +138,7 @@ public class User implements Serializable {
 		if (obj == null || !obj.getClass().equals(this.getClass())) {
 			return false;
 		}
-		User other = (User) obj;
+		UserAuthentication other = (UserAuthentication) obj;
 		return this.username.equals(other.username) && this.type.equals(other.type);
 	}
 
