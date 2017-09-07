@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class V2Migrator {
+public class FromV2Migrator {
 	private void copyCommonProperties(final Entity from, final Entity to) {
 		to.setId(from.getId());
 		to.setRevision(from.getRevision());
