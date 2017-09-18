@@ -15,19 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.thm.arsnova.websocket.message;
+package de.thm.arsnova.events;
+
+import de.thm.arsnova.entities.migration.v2.Room;
 
 /**
- * Represents a session.
+ * Fires whenever the status of a session changes, i.e., it is enabled or disabled.
  */
-public class Session {
-	private String keyword;
+public class StatusRoomEvent extends RoomEvent {
 
-	public String getKeyword() {
-		return keyword;
+	private static final long serialVersionUID = 1L;
+
+	public StatusRoomEvent(Object source, Room room) {
+		super(source, room);
 	}
 
-	public void setKeyword(String keyword) {
-		this.keyword = keyword;
+	@Override
+	public void accept(ArsnovaEventVisitor visitor) {
+		visitor.visit(this);
 	}
+
 }

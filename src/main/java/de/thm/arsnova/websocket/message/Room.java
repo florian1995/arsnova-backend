@@ -15,25 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.thm.arsnova.events;
-
-import de.thm.arsnova.entities.migration.v2.Session;
+package de.thm.arsnova.websocket.message;
 
 /**
- * Base class for all {@link ArsnovaEvent}s that are related to a session.
+ * Represents a session.
  */
-public abstract class SessionEvent extends ArsnovaEvent {
+public class Room {
+	private String keyword;
 
-	private static final long serialVersionUID = 1L;
-
-	private final Session session;
-
-	public SessionEvent(Object source, Session session) {
-		super(source);
-		this.session = session;
+	public String getKeyword() {
+		return keyword;
 	}
 
-	public Session getSession() {
-		return session;
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
 	}
 }

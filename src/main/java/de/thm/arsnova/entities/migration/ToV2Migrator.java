@@ -1,9 +1,7 @@
 package de.thm.arsnova.entities.migration;
 
-import de.thm.arsnova.entities.ChoiceAnswer;
 import de.thm.arsnova.entities.ChoiceQuestionContent;
 import de.thm.arsnova.entities.Entity;
-import de.thm.arsnova.entities.TextAnswer;
 import de.thm.arsnova.entities.UserProfile;
 import de.thm.arsnova.entities.migration.v2.Answer;
 import de.thm.arsnova.entities.migration.v2.AnswerOption;
@@ -11,8 +9,8 @@ import de.thm.arsnova.entities.migration.v2.Comment;
 import de.thm.arsnova.entities.migration.v2.Content;
 import de.thm.arsnova.entities.migration.v2.LoggedIn;
 import de.thm.arsnova.entities.migration.v2.MotdList;
-import de.thm.arsnova.entities.migration.v2.Session;
-import de.thm.arsnova.entities.migration.v2.VisitedSession;
+import de.thm.arsnova.entities.migration.v2.Room;
+import de.thm.arsnova.entities.migration.v2.VisitedRoom;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +27,8 @@ public class ToV2Migrator {
 		copyCommonProperties(from, to);
 		to.setUser(from.getLoginId());
 		to.setTimestamp(from.getLastLogin());
-		to.setVisitedSessions(from.getSessionHistory().stream()
-				.map(entry -> new VisitedSession())
+		to.setVisitedSessions(from.getRoomHistory().stream()
+				.map(entry -> new VisitedRoom())
 				.collect(Collectors.toList()));
 
 		return to;
@@ -45,8 +43,8 @@ public class ToV2Migrator {
 		return to;
 	}
 
-	public Session migrate(final de.thm.arsnova.entities.Session from, final UserProfile owner) {
-		final Session to = new Session();
+	public Room migrate(final de.thm.arsnova.entities.Room from, final UserProfile owner) {
+		final Room to = new Room();
 		copyCommonProperties(from, to);
 		to.setKeyword(from.getShortId());
 		to.setCreator(owner.getLoginId());
@@ -60,7 +58,7 @@ public class ToV2Migrator {
 	public Content migrate(final de.thm.arsnova.entities.Content from) {
 		final Content to = new Content();
 		copyCommonProperties(from, to);
-		to.setSessionId(from.getSessionId());
+		to.setSessionId(from.getRoomId());
 		to.setSubject(from.getSubject());
 		to.setText(from.getBody());
 		to.setQuestionType(from.getFormat());

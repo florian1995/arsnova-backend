@@ -15,25 +15,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.thm.arsnova.events;
+package de.thm.arsnova.services;
 
-import de.thm.arsnova.entities.migration.v2.Session;
+import de.thm.arsnova.entities.UserAuthentication;
+import de.thm.arsnova.entities.migration.v2.Room;
+
+import java.util.UUID;
 
 /**
- * Fires whenever a session is deleted. Note that this implies that all related data such as comments,
- * lecturer questions, and answers are deleted as well, even though those events are not fired.
+ * The functionality the user-session service should provide.
  */
-public class DeleteSessionEvent extends SessionEvent {
+public interface UserRoomService {
 
-	private static final long serialVersionUID = 1L;
-
-	public DeleteSessionEvent(Object source, Session session) {
-		super(source, session);
+	enum Role {
+		STUDENT,
+		SPEAKER
 	}
 
-	@Override
-	public void accept(ArsnovaEventVisitor visitor) {
-		visitor.visit(this);
-	}
+	void setUser(UserAuthentication user);
+	UserAuthentication getUser();
 
+	void setRoom(Room room);
+	Room getRoom();
+
+	void setSocketId(UUID socketId);
+	UUID getSocketId();
+
+	void setRole(Role role);
+	Role getRole();
+
+	boolean inRoom();
+	boolean isAuthenticated();
 }

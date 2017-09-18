@@ -19,10 +19,10 @@ package de.thm.arsnova.controller;
 
 import de.thm.arsnova.entities.ServiceDescription;
 import de.thm.arsnova.entities.UserAuthentication;
-import de.thm.arsnova.entities.migration.v2.Session;
+import de.thm.arsnova.entities.migration.v2.Room;
 import de.thm.arsnova.exceptions.UnauthorizedException;
+import de.thm.arsnova.services.UserRoomService;
 import de.thm.arsnova.services.UserService;
-import de.thm.arsnova.services.UserSessionService;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.exception.HttpAction;
 import org.pac4j.oauth.client.FacebookClient;
@@ -145,7 +145,7 @@ public class LoginController extends AbstractController {
 	private UserService userService;
 
 	@Autowired
-	private UserSessionService userSessionService;
+	private UserRoomService userRoomService;
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
@@ -161,7 +161,7 @@ public class LoginController extends AbstractController {
 			@RequestParam("type") final String type,
 			@RequestParam(value = "user", required = false) String username,
 			@RequestParam(required = false) final String password,
-			@RequestParam(value = "role", required = false) final UserSessionService.Role role,
+			@RequestParam(value = "role", required = false) final UserRoomService.Role role,
 			final HttpServletRequest request,
 			final HttpServletResponse response
 	) throws IOException {
@@ -172,7 +172,7 @@ public class LoginController extends AbstractController {
 			return;
 		}
 
-		userSessionService.setRole(role);
+		userRoomService.setRole(role);
 
 		if (dbAuthEnabled && "arsnova".equals(type)) {
 			Authentication authRequest = new UsernamePasswordAuthenticationToken(username, password);
@@ -305,7 +305,7 @@ public class LoginController extends AbstractController {
 	@RequestMapping(value = { "/auth/", "/whoami" }, method = RequestMethod.GET)
 	@ResponseBody
 	public UserAuthentication whoami() {
-		userSessionService.setUser(userService.getCurrentUser());
+		userRoomService.setUser(userService.getCurrentUser());
 		return userService.getCurrentUser();
 	}
 
@@ -432,7 +432,7 @@ public class LoginController extends AbstractController {
 	@RequestMapping(value = { "/test/me" }, method = RequestMethod.GET)
 	@ResponseBody
 	public UserAuthentication me() {
-		final UserAuthentication me = userSessionService.getUser();
+		final UserAuthentication me = userRoomService.getUser();
 		if (me == null) {
 			throw new UnauthorizedException();
 		}
@@ -441,8 +441,8 @@ public class LoginController extends AbstractController {
 
 	@RequestMapping(value = { "/test/mysession" }, method = RequestMethod.GET)
 	@ResponseBody
-	public Session mysession() {
-		final Session mysession = userSessionService.getSession();
+	public Room mysession() {
+		final Room mysession = userRoomService.getRoom();
 		if (mysession == null) {
 			throw new UnauthorizedException();
 		}
@@ -451,8 +451,8 @@ public class LoginController extends AbstractController {
 
 	@RequestMapping(value = { "/test/myrole" }, method = RequestMethod.GET)
 	@ResponseBody
-	public UserSessionService.Role myrole() {
-		final UserSessionService.Role myrole = userSessionService.getRole();
+	public UserRoomService.Role myrole() {
+		final UserRoomService.Role myrole = userRoomService.getRole();
 		if (myrole == null) {
 			throw new UnauthorizedException();
 		}

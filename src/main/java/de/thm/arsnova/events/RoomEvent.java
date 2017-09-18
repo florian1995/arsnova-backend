@@ -17,22 +17,23 @@
  */
 package de.thm.arsnova.events;
 
-import de.thm.arsnova.entities.migration.v2.Session;
+import de.thm.arsnova.entities.migration.v2.Room;
 
 /**
- * Fires whenever a new session is created.
+ * Base class for all {@link ArsnovaEvent}s that are related to a room.
  */
-public class NewSessionEvent extends SessionEvent {
+public abstract class RoomEvent extends ArsnovaEvent {
 
 	private static final long serialVersionUID = 1L;
 
-	public NewSessionEvent(Object source, Session session) {
-		super(source, session);
+	private final Room room;
+
+	public RoomEvent(Object source, Room room) {
+		super(source);
+		this.room = room;
 	}
 
-	@Override
-	public void accept(ArsnovaEventVisitor visitor) {
-		visitor.visit(this);
+	public Room getRoom() {
+		return room;
 	}
-
 }
