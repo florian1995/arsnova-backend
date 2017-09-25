@@ -1,7 +1,7 @@
 package de.thm.arsnova.entities.migration;
 
 import de.thm.arsnova.entities.ChoiceQuestionContent;
-import de.thm.arsnova.entities.Entity;
+import de.thm.arsnova.entities.migration.v2.Entity;
 import de.thm.arsnova.entities.UserProfile;
 import de.thm.arsnova.entities.migration.v2.Answer;
 import de.thm.arsnova.entities.migration.v2.AnswerOption;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ToV2Migrator {
-	private void copyCommonProperties(final Entity from, final Entity to) {
+	private void copyCommonProperties(final de.thm.arsnova.entities.Entity from, final Entity to) {
 		to.setId(from.getId());
 		to.setRevision(from.getRevision());
 	}

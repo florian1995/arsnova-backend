@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreFilter;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 public class DefaultEntityServiceImpl<T extends Entity> implements EntityService<T> {
@@ -36,6 +37,8 @@ public class DefaultEntityServiceImpl<T extends Entity> implements EntityService
 		if (entity.getId() != null || entity.getRevision() != null) {
 			throw new IllegalArgumentException("Entity is not new.");
 		}
+		entity.setCreationTimestamp(new Date());
+
 		return repository.save(entity);
 	}
 
@@ -43,6 +46,8 @@ public class DefaultEntityServiceImpl<T extends Entity> implements EntityService
 	@PreAuthorize("hasPermission(#oldEntity, 'update')")
 	public T update(final T oldEntity, final T newEntity) {
 		newEntity.setId(oldEntity.getId());
+		newEntity.setUpdateTimestamp(new Date());
+
 		return repository.save(newEntity);
 	}
 
@@ -52,6 +57,7 @@ public class DefaultEntityServiceImpl<T extends Entity> implements EntityService
 		ObjectReader reader = objectMapper.readerForUpdating(entity).withView(View.Public.class);
 		JsonNode tree = objectMapper.valueToTree(changes);
 		reader.readValue(tree);
+		entity.setUpdateTimestamp(new Date());
 
 		return repository.save(entity);
 	}
@@ -63,6 +69,7 @@ public class DefaultEntityServiceImpl<T extends Entity> implements EntityService
 		for (T entity : entities) {
 			ObjectReader reader = objectMapper.readerForUpdating(entity).withView(View.Public.class);
 			reader.readValue(tree);
+			entity.setUpdateTimestamp(new Date());
 		}
 
 		return repository.save(entities);
