@@ -17,7 +17,6 @@
  */
 package de.thm.arsnova.controller;
 
-import de.thm.arsnova.connector.model.Course;
 import de.thm.arsnova.entities.Room;
 import de.thm.arsnova.entities.transport.ImportExportSession;
 import de.thm.arsnova.entities.transport.ScoreStatistics;
@@ -53,9 +52,9 @@ import java.util.List;
  * Handles requests related to ARSnova rooms.
  */
 @RestController
-@RequestMapping("/session")
-@Api(value = "/session", description = "the Room Controller API")
-public class SessionController extends PaginationController {
+@RequestMapping("/room")
+@Api(value = "/room", description = "the Room Controller API")
+public class RoomController extends PaginationController {
 	@Autowired
 	private RoomService roomService;
 
@@ -63,26 +62,26 @@ public class SessionController extends PaginationController {
 	private UserService userService;
 
 	@ApiOperation(value = "join a session",
-			nickname = "joinSession")
+			nickname = "joinRoom")
 	@DeprecatedApi
 	@Deprecated
-	@RequestMapping(value = "/{sessionkey}", method = RequestMethod.GET)
-	public Room joinSession(
-			@ApiParam(value = "Room-Key from current session", required = true) @PathVariable final String sessionkey,
+	@RequestMapping(value = "/{shortId}", method = RequestMethod.GET)
+	public Room get(
+			@ApiParam(value = "Room-Key from current session", required = true) @PathVariable final String shortId,
 			@ApiParam(value = "Adminflag", required = false) @RequestParam(value = "admin", defaultValue = "false")	final boolean admin
 			) {
 		if (admin) {
-			return roomService.getForAdmin(sessionkey);
+			return roomService.getForAdmin(shortId);
 		} else {
-			return roomService.getByKey(sessionkey);
+			return roomService.getByKey(shortId);
 		}
 	}
 
 	@ApiOperation(value = "deletes a session",
-			nickname = "deleteSession")
-	@RequestMapping(value = "/{sessionkey}", method = RequestMethod.DELETE)
-	public void deleteSession(@ApiParam(value = "Room-Key from current session", required = true) @PathVariable final String sessionkey) {
-		Room room = roomService.getByKey(sessionkey);
+			nickname = "delete")
+	@RequestMapping(value = "/{shortId}", method = RequestMethod.DELETE)
+	public void delete(@ApiParam(value = "Room-Key from current session", required = true) @PathVariable final String shortId) {
+		Room room = roomService.getByKey(shortId);
 		roomService.deleteCascading(room);
 	}
 
@@ -90,20 +89,20 @@ public class SessionController extends PaginationController {
 			nickname = "countActiveUsers")
 	@DeprecatedApi
 	@Deprecated
-	@RequestMapping(value = "/{sessionkey}/activeusercount", method = RequestMethod.GET)
-	public int countActiveUsers(@ApiParam(value = "Room-Key from current session", required = true) @PathVariable final String sessionkey) {
-		return roomService.activeUsers(sessionkey);
+	@RequestMapping(value = "/{shortId}/activeusercount", method = RequestMethod.GET)
+	public int countActiveUsers(@ApiParam(value = "Room-Key from current session", required = true) @PathVariable final String shortId) {
+		return roomService.activeUsers(shortId);
 	}
 
 	@ApiOperation(value = "Creates a new Room and returns the Room's data",
-			nickname = "postNewSession")
+			nickname = "create")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = HTML_STATUS_201),
 		@ApiResponse(code = 503, message = HTML_STATUS_503)
 	})
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	public Room postNewSession(@ApiParam(value = "current session", required = true) @RequestBody final Room room, final HttpServletResponse response) {
+	public Room create(@ApiParam(value = "current session", required = true) @RequestBody final Room room, final HttpServletResponse response) {
 		/* FIXME: migrate LMS course support
 		if (room != null && room.isCourseSession()) {
 			final List<Course> courses = new ArrayList<>();
@@ -125,33 +124,24 @@ public class SessionController extends PaginationController {
 	}
 
 	@ApiOperation(value = "updates a session",
-			nickname = "postNewSession")
-	@RequestMapping(value = "/{sessionkey}", method = RequestMethod.PUT)
-	public Room updateSession(
-			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String sessionkey,
+			nickname = "create")
+	@RequestMapping(value = "/{shortId}", method = RequestMethod.PUT)
+	public Room update(
+			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String shortId,
 			@ApiParam(value = "current session", required = true) @RequestBody final Room room
 			) {
-		return roomService.update(sessionkey, room);
-	}
-
-	@ApiOperation(value = "change the session creator (owner)", nickname = "changeSessionCreator")
-	@RequestMapping(value = "/{sessionkey}/changecreator", method = RequestMethod.PUT)
-	public Room changeSessionCreator(
-			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String sessionkey,
-			@ApiParam(value = "new session creator", required = true) @RequestBody final String newCreator
-			) {
-		return roomService.updateCreator(sessionkey, newCreator);
+		return roomService.update(shortId, room);
 	}
 
 	@ApiOperation(value = "Retrieves a list of Sessions",
-			nickname = "getSessions")
+			nickname = "getAll")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = HTML_STATUS_204),
 		@ApiResponse(code = 501, message = HTML_STATUS_501)
 	})
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	@Pagination
-	public List<Room> getSessions(
+	public List<Room> getAll(
 			@ApiParam(value = "ownedOnly", required = true) @RequestParam(value = "ownedonly", defaultValue = "false") final boolean ownedOnly,
 			@ApiParam(value = "visitedOnly", required = true) @RequestParam(value = "visitedonly", defaultValue = "false") final boolean visitedOnly,
 			@ApiParam(value = "sortby", required = true) @RequestParam(value = "sortby", defaultValue = "name") final String sortby,
@@ -290,14 +280,14 @@ public class SessionController extends PaginationController {
 	@ApiOperation(value = "export sessions", nickname = "exportSession")
 	@RequestMapping(value = "/export", method = RequestMethod.GET)
 	public List<ImportExportSession> getExport(
-			@ApiParam(value = "sessionkey", required = true) @RequestParam(value = "sessionkey", defaultValue = "") final List<String> sessionkey,
+			@ApiParam(value = "shortId", required = true) @RequestParam(value = "shortId", defaultValue = "") final List<String> shortId,
 			@ApiParam(value = "wether statistics shall be exported", required = true) @RequestParam(value = "withAnswerStatistics", defaultValue = "false") final Boolean withAnswerStatistics,
 			@ApiParam(value = "wether comments shall be exported", required = true) @RequestParam(value = "withFeedbackQuestions", defaultValue = "false") final Boolean withFeedbackQuestions,
 			final HttpServletResponse response
 		) {
 		List<ImportExportSession> sessions = new ArrayList<>();
 		ImportExportSession temp;
-		for (String key : sessionkey) {
+		for (String key : shortId) {
 			roomService.setActive(key, false);
 			temp = roomService.exportSession(key, withAnswerStatistics, withFeedbackQuestions);
 			if (temp != null) {
@@ -309,194 +299,38 @@ public class SessionController extends PaginationController {
 	}
 
 	@ApiOperation(value = "copy a session to the public pool if enabled")
-	@RequestMapping(value = "/{sessionkey}/copytopublicpool", method = RequestMethod.POST)
+	@RequestMapping(value = "/{shortId}/copytopublicpool", method = RequestMethod.POST)
 	public Room copyToPublicPool(
-			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String sessionkey,
+			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String shortId,
 			@ApiParam(value = "public pool attributes for session", required = true) @RequestBody final de.thm.arsnova.entities.transport.ImportExportSession.PublicPool publicPool
 			) {
-		roomService.setActive(sessionkey, false);
-		Room roomInfo = roomService.copySessionToPublicPool(sessionkey, publicPool);
-		roomService.setActive(sessionkey, true);
+		roomService.setActive(shortId, false);
+		Room roomInfo = roomService.copySessionToPublicPool(shortId, publicPool);
+		roomService.setActive(shortId, true);
 		return roomInfo;
-	}
-
-
-	@ApiOperation(value = "Locks or unlocks a Room",
-			nickname = "lockSession")
-	@ApiResponses(value = {
-		@ApiResponse(code = 404, message = HTML_STATUS_404)
-	})
-	@RequestMapping(value = "/{sessionkey}/lock", method = RequestMethod.POST)
-	public Room lockSession(
-			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String sessionkey,
-			@ApiParam(value = "lock", required = true) @RequestParam(required = false) final Boolean lock,
-			final HttpServletResponse response
-			) {
-		if (lock != null) {
-			return roomService.setActive(sessionkey, lock);
-		}
-		response.setStatus(HttpStatus.NOT_FOUND.value());
-		return null;
 	}
 
 	@ApiOperation(value = "retrieves a value for the score",
 			nickname = "getLearningProgress")
-	@RequestMapping(value = "/{sessionkey}/learningprogress", method = RequestMethod.GET)
+	@RequestMapping(value = "/{shortId}/learningprogress", method = RequestMethod.GET)
 	public ScoreStatistics getLearningProgress(
-			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String sessionkey,
+			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String shortId,
 			@ApiParam(value = "type", required = false) @RequestParam(value = "type", defaultValue = "questions") final String type,
 			@ApiParam(value = "question variant", required = false) @RequestParam(value = "questionVariant", required = false) final String questionVariant,
 			final HttpServletResponse response
 			) {
-		return roomService.getLearningProgress(sessionkey, type, questionVariant);
+		return roomService.getLearningProgress(shortId, type, questionVariant);
 	}
 
 	@ApiOperation(value = "retrieves a value for the learning progress for the current user",
 			nickname = "getMyLearningProgress")
-	@RequestMapping(value = "/{sessionkey}/mylearningprogress", method = RequestMethod.GET)
+	@RequestMapping(value = "/{shortId}/mylearningprogress", method = RequestMethod.GET)
 	public ScoreStatistics getMyLearningProgress(
-			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String sessionkey,
+			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String shortId,
 			@RequestParam(value = "type", defaultValue = "questions") final String type,
 			@RequestParam(value = "questionVariant", required = false) final String questionVariant,
 			final HttpServletResponse response
 			) {
-		return roomService.getMyLearningProgress(sessionkey, type, questionVariant);
-	}
-
-	@ApiOperation(value = "retrieves all session features",
-			nickname = "getSessionFeatures")
-	@RequestMapping(value = "/{sessionkey}/features", method = RequestMethod.GET)
-	public Room.Settings getSessionFeatures(
-			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String sessionkey,
-			final HttpServletResponse response
-			) {
-		return roomService.getFeatures(sessionkey);
-	}
-
-	@RequestMapping(value = "/{sessionkey}/features", method = RequestMethod.PUT)
-	@ApiOperation(value = "change all session features",
-			nickname = "changeSessionFeatures")
-	public Room.Settings changeSessionFeatures(
-			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String sessionkey,
-			@ApiParam(value = "session feature", required = true) @RequestBody final Room.Settings features,
-			final HttpServletResponse response
-			) {
-		return roomService.updateFeatures(sessionkey, features);
-	}
-
-	@RequestMapping(value = "/{sessionkey}/lockfeedbackinput", method = RequestMethod.POST)
-	@ApiOperation(value = "locks input of user live feedback",
-			nickname = "lockFeedbackInput")
-	public boolean lockFeedbackInput(
-			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String sessionkey,
-			@ApiParam(value = "lock", required = true) @RequestParam(required = true) final Boolean lock,
-			final HttpServletResponse response
-			) {
-		return roomService.lockFeedbackInput(sessionkey, lock);
-	}
-
-	@RequestMapping(value = "/{sessionkey}/flipflashcards", method = RequestMethod.POST)
-	@ApiOperation(value = "flip all flashcards in session",
-			nickname = "lockFeedbackInput")
-	public boolean flipFlashcards(
-			@ApiParam(value = "session-key from current session", required = true) @PathVariable final String sessionkey,
-			@ApiParam(value = "flip", required = true) @RequestParam(required = true) final Boolean flip,
-			final HttpServletResponse response
-			) {
-		return roomService.flipFlashcards(sessionkey, flip);
-	}
-
-	/* internal redirections */
-
-	@RequestMapping(value = "/{sessionKey}/lecturerquestion")
-	public String redirectLecturerQuestion(
-			@PathVariable final String sessionKey,
-			final HttpServletResponse response
-			) {
-		response.addHeader(X_FORWARDED, "1");
-
-		return String.format("forward:/lecturerquestion/?sessionkey=%s", sessionKey);
-	}
-
-	@RequestMapping(value = "/{sessionKey}/lecturerquestion/{arg1}")
-	public String redirectLecturerQuestionWithOneArgument(
-			@PathVariable final String sessionKey,
-			@PathVariable final String arg1,
-			final HttpServletResponse response
-			) {
-		response.addHeader(X_FORWARDED, "1");
-
-		return String.format("forward:/lecturerquestion/%s/?sessionkey=%s", arg1, sessionKey);
-	}
-
-	@RequestMapping(value = "/{sessionKey}/lecturerquestion/{arg1}/{arg2}")
-	public String redirectLecturerQuestionWithTwoArguments(
-			@PathVariable final String sessionKey,
-			@PathVariable final String arg1,
-			@PathVariable final String arg2,
-			final HttpServletResponse response
-			) {
-		response.addHeader(X_FORWARDED, "1");
-
-		return String.format("forward:/lecturerquestion/%s/%s/?sessionkey=%s", arg1, arg2, sessionKey);
-	}
-
-	@RequestMapping(value = "/{sessionKey}/lecturerquestion/{arg1}/{arg2}/{arg3}")
-	public String redirectLecturerQuestionWithThreeArguments(
-			@PathVariable final String sessionKey,
-			@PathVariable final String arg1,
-			@PathVariable final String arg2,
-			@PathVariable final String arg3,
-			final HttpServletResponse response
-			) {
-		response.addHeader(X_FORWARDED, "1");
-
-		return String.format("forward:/lecturerquestion/%s/%s/%s/?sessionkey=%s", arg1, arg2, arg3, sessionKey);
-	}
-
-	@RequestMapping(value = "/{sessionKey}/audiencequestion")
-	public String redirectAudienceQuestion(
-			@PathVariable final String sessionKey,
-			final HttpServletResponse response
-			) {
-		response.addHeader(X_FORWARDED, "1");
-
-		return String.format("forward:/audiencequestion/?sessionkey=%s", sessionKey);
-	}
-
-	@RequestMapping(value = "/{sessionKey}/audiencequestion/{arg1}")
-	public String redirectAudienceQuestionWithOneArgument(
-			@PathVariable final String sessionKey,
-			@PathVariable final String arg1,
-			final HttpServletResponse response
-			) {
-		response.addHeader(X_FORWARDED, "1");
-
-		return String.format("forward:/audiencequestion/%s/?sessionkey=%s", arg1, sessionKey);
-	}
-
-	@RequestMapping(value = "/{sessionKey}/audiencequestion/{arg1}/{arg2}")
-	public String redirectAudienceQuestionWithTwoArguments(
-			@PathVariable final String sessionKey,
-			@PathVariable final String arg1,
-			@PathVariable final String arg2,
-			final HttpServletResponse response
-			) {
-		response.addHeader(X_FORWARDED, "1");
-
-		return String.format("forward:/audiencequestion/%s/%s/?sessionkey=%s", arg1, arg2, sessionKey);
-	}
-
-	@RequestMapping(value = "/{sessionKey}/audiencequestion/{arg1}/{arg2}/{arg3}")
-	public String redirectAudienceQuestionWithThreeArguments(
-			@PathVariable final String sessionKey,
-			@PathVariable final String arg1,
-			@PathVariable final String arg2,
-			@PathVariable final String arg3,
-			final HttpServletResponse response
-			) {
-		response.addHeader(X_FORWARDED, "1");
-
-		return String.format("forward:/audiencequestion/%s/%s/%s/?sessionkey=%s", arg1, arg2, arg3, sessionKey);
+		return roomService.getMyLearningProgress(shortId, type, questionVariant);
 	}
 }

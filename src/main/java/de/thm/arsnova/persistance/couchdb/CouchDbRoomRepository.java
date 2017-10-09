@@ -186,7 +186,7 @@ public class CouchDbRoomRepository extends CouchDbCrudRepository<Room> implement
 //		} catch (final IOException e) {
 //			logger.error("Could not import session.", e);
 //			// Something went wrong, delete this session since we do not want a partial import
-//			this.deleteSession(session);
+//			this.delete(session);
 //			return null;
 //		}
 //		return this.calculateSessionInfo(importSession, session);
